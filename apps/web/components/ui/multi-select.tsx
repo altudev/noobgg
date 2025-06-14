@@ -234,12 +234,12 @@ export const MultiSelect = React.forwardRef<
             )}
           </Button>
         </PopoverTrigger>        <PopoverContent
-          className="w-auto p-0 z-[9999] shadow-2xl border-white/20"
+          className="p-0 z-[9999] shadow-2xl border-white/20"
           align="start"
           side="bottom"
           sideOffset={4}
           onEscapeKeyDown={() => setIsPopoverOpen(false)}
-          style={{ position: 'fixed' }}
+          style={{ position: 'fixed', width: 'var(--radix-popover-trigger-width)' }}
         >
           <Command>
             <CommandInput

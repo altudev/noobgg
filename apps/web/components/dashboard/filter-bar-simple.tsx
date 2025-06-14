@@ -3,6 +3,7 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Input } from '@/components/ui/input';
 import { MultiSelect } from '@/components/ui/multi-select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Search, Grid3X3, List, X, Shield, Award, Star, Gem, Zap, Trophy, Target, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -14,8 +15,8 @@ interface FilterBarProps {
   onSearchChange: (value: string) => void;
   selectedGame: string;
   onGameChange: (value: string) => void;
-  selectedGames: string[];
-  onGamesChange: (value: string[]) => void;
+  selectedGames: string[]; // Keep for backward compatibility
+  onGamesChange: (value: string[]) => void; // Keep for backward compatibility
   selectedRegion: string;
   onRegionChange: (value: string) => void;
   selectedRegions: string[];
@@ -23,13 +24,12 @@ interface FilterBarProps {
   selectedMode: string;
   onModeChange: (value: string) => void;
   selectedModes: string[];
-  onModesChange: (value: string[]) => void;
-  selectedLanguages: string[];
+  onModesChange: (value: string[]) => void;  selectedLanguages: string[];
   onLanguagesChange: (value: string[]) => void;
-  selectedPlatforms: string[];
-  onPlatformsChange: (value: string[]) => void;
-  selectedPlayingFor: string[];
-  onPlayingForChange: (value: string[]) => void;
+  selectedPlatform?: string; // Add single platform selection
+  onPlatformChange?: (value: string) => void; // Add single platform selection
+  selectedPlatforms: string[]; // Keep for backward compatibility
+  onPlatformsChange: (value: string[]) => void; // Keep for backward compatibility
   selectedMicRequired: string[];
   onMicRequiredChange: (value: string[]) => void;
   minRank?: string;
@@ -120,13 +120,12 @@ export function FilterBarSimple({
   selectedMode,
   onModeChange,
   selectedModes,
-  onModesChange,
-  selectedLanguages,
+  onModesChange,  selectedLanguages,
   onLanguagesChange,
+  selectedPlatform = "all",
+  onPlatformChange = () => {},
   selectedPlatforms,
   onPlatformsChange,
-  selectedPlayingFor,
-  onPlayingForChange,
   selectedMicRequired,
   onMicRequiredChange,
   minRank = "bronze",
@@ -389,7 +388,7 @@ export function FilterBarSimple({
                       "transition-all duration-300"
                     )}
                   />
-                </div>                {/* Region */}
+                </div>{/* Region */}
                 <div className="space-y-2 relative" style={{ zIndex: 130 }}>
                   <label className="block text-xs font-semibold text-white/80 tracking-wide uppercase">
                     Region
@@ -442,24 +441,7 @@ export function FilterBarSimple({
                       "transition-all duration-300"
                     )}
                   />
-                </div>                {/* Playing For */}
-                <div className="space-y-2 relative" style={{ zIndex: 105 }}>
-                  <label className="block text-xs font-semibold text-white/80 tracking-wide uppercase">
-                    Playing For
-                  </label>
-                  <MultiSelect
-                    options={playingForOptions}
-                    value={selectedPlayingFor}
-                    onValueChange={onPlayingForChange}                    placeholder="Anything"
-                    className={cn(
-                      "h-10 rounded-xl bg-black/30 backdrop-blur-xl",
-                      "border-white/20 text-white text-sm font-medium",
-                      "focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/60",
-                      "hover:bg-black/40 hover:border-white/30",
-                      "transition-all duration-300"
-                    )}
-                  />
-                </div>                {/* Mic Required */}
+                </div>{/* Mic Required */}
                 <div className="space-y-2 relative" style={{ zIndex: 100 }}>
                   <label className="block text-xs font-semibold text-white/80 tracking-wide uppercase">
                     Mic Required
@@ -479,143 +461,7 @@ export function FilterBarSimple({
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Active Filters Display */}
-          {(selectedGames.length > 0 || selectedRegions.length > 0 || selectedModes.length > 0 || 
-            selectedLanguages.length > 0 || selectedPlatforms.length > 0 || selectedPlayingFor.length > 0 || 
-            selectedMicRequired.length > 0 || (minRank !== "bronze" || maxRank !== "platinum")) && (
-            <div className="relative bg-white/[0.02] backdrop-blur-3xl rounded-2xl p-4 border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.2)]">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold text-white/70 tracking-wide uppercase">Filters Applied</h3>
-                {onClearFilters && (
-                  <Button
-                    onClick={onClearFilters}
-                    variant="ghost"
-                    size="sm"
-                    className="text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl text-xs h-7 px-3"
-                  >
-                    Clear All
-                  </Button>
-                )}
-              </div>
-              
-              <div className="flex flex-wrap gap-2">
-                {selectedGames.map(game => (
-                  <Badge
-                    key={`game-${game}`}
-                    variant="secondary"
-                    className="bg-blue-500/10 text-blue-300 border-blue-500/20 hover:bg-blue-500/20 transition-colors text-xs px-2 py-1 rounded-lg flex items-center gap-1"
-                  >
-                    Game: {gameOptions.find(g => g.value === game)?.label}
-                    <X
-                      className="w-3 h-3 cursor-pointer hover:text-blue-200"
-                      onClick={() => onGamesChange(selectedGames.filter(g => g !== game))}
-                    />
-                  </Badge>
-                ))}
-                
-                {selectedRegions.map(region => (
-                  <Badge
-                    key={`region-${region}`}
-                    variant="secondary"
-                    className="bg-green-500/10 text-green-300 border-green-500/20 hover:bg-green-500/20 transition-colors text-xs px-2 py-1 rounded-lg flex items-center gap-1"
-                  >
-                    Region: {regionOptions.find(r => r.value === region)?.label}
-                    <X
-                      className="w-3 h-3 cursor-pointer hover:text-green-200"
-                      onClick={() => onRegionsChange(selectedRegions.filter(r => r !== region))}
-                    />
-                  </Badge>
-                ))}
-                
-                {selectedModes.map(mode => (
-                  <Badge
-                    key={`mode-${mode}`}
-                    variant="secondary"
-                    className="bg-purple-500/10 text-purple-300 border-purple-500/20 hover:bg-purple-500/20 transition-colors text-xs px-2 py-1 rounded-lg flex items-center gap-1"
-                  >
-                    Mode: {modeOptions.find(m => m.value === mode)?.label}
-                    <X
-                      className="w-3 h-3 cursor-pointer hover:text-purple-200"
-                      onClick={() => onModesChange(selectedModes.filter(m => m !== mode))}
-                    />
-                  </Badge>
-                ))}
-                
-                {selectedLanguages.map(language => (
-                  <Badge
-                    key={`language-${language}`}
-                    variant="secondary"
-                    className="bg-yellow-500/10 text-yellow-300 border-yellow-500/20 hover:bg-yellow-500/20 transition-colors text-xs px-2 py-1 rounded-lg flex items-center gap-1"
-                  >
-                    Language: {languageOptions.find(l => l.value === language)?.label}
-                    <X
-                      className="w-3 h-3 cursor-pointer hover:text-yellow-200"
-                      onClick={() => onLanguagesChange(selectedLanguages.filter(l => l !== language))}
-                    />
-                  </Badge>
-                ))}
-                
-                {selectedPlatforms.map(platform => (
-                  <Badge
-                    key={`platform-${platform}`}
-                    variant="secondary"
-                    className="bg-orange-500/10 text-orange-300 border-orange-500/20 hover:bg-orange-500/20 transition-colors text-xs px-2 py-1 rounded-lg flex items-center gap-1"
-                  >
-                    Platform: {platformOptions.find(p => p.value === platform)?.label}
-                    <X
-                      className="w-3 h-3 cursor-pointer hover:text-orange-200"
-                      onClick={() => onPlatformsChange(selectedPlatforms.filter(p => p !== platform))}
-                    />
-                  </Badge>
-                ))}
-                
-                {selectedPlayingFor.map(playing => (
-                  <Badge
-                    key={`playing-${playing}`}
-                    variant="secondary"
-                    className="bg-cyan-500/10 text-cyan-300 border-cyan-500/20 hover:bg-cyan-500/20 transition-colors text-xs px-2 py-1 rounded-lg flex items-center gap-1"
-                  >
-                    Playing: {playingForOptions.find(p => p.value === playing)?.label}
-                    <X
-                      className="w-3 h-3 cursor-pointer hover:text-cyan-200"
-                      onClick={() => onPlayingForChange(selectedPlayingFor.filter(p => p !== playing))}
-                    />
-                  </Badge>
-                ))}
-                
-                {selectedMicRequired.map(mic => (
-                  <Badge
-                    key={`mic-${mic}`}
-                    variant="secondary"
-                    className="bg-pink-500/10 text-pink-300 border-pink-500/20 hover:bg-pink-500/20 transition-colors text-xs px-2 py-1 rounded-lg flex items-center gap-1"
-                  >
-                    Mic: {micRequiredOptions.find(m => m.value === mic)?.label}
-                    <X
-                      className="w-3 h-3 cursor-pointer hover:text-pink-200"
-                      onClick={() => onMicRequiredChange(selectedMicRequired.filter(m => m !== mic))}
-                    />
-                  </Badge>
-                ))}
-                
-                {(minRank !== "bronze" || maxRank !== "platinum") && (
-                  <Badge
-                    variant="secondary"
-                    className="bg-indigo-500/10 text-indigo-300 border-indigo-500/20 hover:bg-indigo-500/20 transition-colors text-xs px-2 py-1 rounded-lg flex items-center gap-1"
-                  >
-                    Rank: {getSelectedRankDisplay(minRank)} - {getSelectedRankDisplay(maxRank)}
-                    {onRankRangeChange && (
-                      <X
-                        className="w-3 h-3 cursor-pointer hover:text-indigo-200"
-                        onClick={() => onRankRangeChange("bronze", "platinum")}
-                      />
-                    )}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          )}          {/* Modern Rank Range Card */}
+          </div>          {/* Active Filters Display - REMOVED */}{/* Modern Rank Range Card */}
           <div className="relative bg-white/[0.02] backdrop-blur-3xl rounded-2xl p-4 border border-white/8 shadow-[0_15px_30px_rgba(0,0,0,0.10)]">
             <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] via-transparent to-black/[0.01] rounded-2xl pointer-events-none"></div>
             

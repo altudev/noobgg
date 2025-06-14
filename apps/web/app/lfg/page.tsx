@@ -6,145 +6,51 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { FilterBarSimple } from "@/components/dashboard/filter-bar-simple";
 import { LobbyCardSimple } from "@/components/dashboard/lobby-card-simple";
 import { LobbyListItem } from "@/components/dashboard/lobby-list-item";
+import { mockLobbies } from "@/lib/mock-data/lobbies";
 import { Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// Enhanced mock data with real game logos
-const mockLobbies = [
-  {
-    id: 1,
-    game: {
-      name: "Valorant",
-      icon: "/logos/valorant-logo.svg",
-      color: "#ff4655",
-    },
-    owner: { username: "ProGamer123", avatar: "/avatars/user1.jpg" },
-    mode: "Competitive",
-    region: "EU West",
-    currentSize: 3,
-    maxSize: 5,
-    minRank: "Gold",
-    maxRank: "Platinum",
-    isMicRequired: true,
-    type: "public" as const,
-    status: "waiting" as const,
-    note: "Looking for chill players, no rage pls",
-    createdAt: "2024-06-13T10:30:00Z",
-    tags: ["English", "18+", "Chill"],
-  },
-  {
-    id: 2,
-    game: {
-      name: "Counter Strike 2",
-      icon: "/logos/counter-strike-2.svg",
-      color: "#f7941d",
-    },
-    owner: { username: "AWPMaster", avatar: "/avatars/user2.jpg" },
-    mode: "Competitive",
-    region: "EU East",
-    currentSize: 4,
-    maxSize: 5,
-    minRank: "Master Guardian",
-    maxRank: "Legendary Eagle",
-    isMicRequired: true,
-    type: "public" as const,
-    status: "waiting" as const,
-    note: "Need 1 more for full team. Must have good aim!",
-    createdAt: "2024-06-13T11:15:00Z",
-    tags: ["Skilled", "Russian/English", "Serious"],
-  },
-  {
-    id: 3,
-    game: {
-      name: "League of Legends",
-      icon: "/logos/league-of-legends-logo.svg",
-      color: "#c89b3c",
-    },
-    owner: { username: "SummonerX", avatar: "/avatars/user3.jpg" },
-    mode: "Ranked Solo/Duo",
-    region: "EU West",
-    currentSize: 2,
-    maxSize: 2,
-    minRank: "Gold",
-    maxRank: "Platinum",
-    isMicRequired: false,
-    type: "public" as const,
-    status: "waiting" as const,
-    note: "Duo queue for ranked climb",
-    createdAt: "2024-06-13T09:45:00Z",
-    tags: ["Duo", "Ranked", "Climb"],
-  },
-  {
-    id: 4,
-    game: {
-      name: "Fortnite",
-      icon: "/logos/fortnite-logo.svg",
-      color: "#00a2e8",
-    },
-    owner: { username: "BuildMaster", avatar: "/avatars/user4.jpg" },
-    mode: "Battle Royale",
-    region: "North America",
-    currentSize: 2,
-    maxSize: 4,
-    minRank: "Champion",
-    maxRank: "Unreal",
-    isMicRequired: true,
-    type: "public" as const,
-    status: "waiting" as const,
-    note: "Squad up for Victory Royales!",
-    createdAt: "2024-06-13T08:20:00Z",
-    tags: ["Squad", "Building", "BR"],
-  },
-  {
-    id: 5,
-    game: {
-      name: "PUBG",
-      icon: "/logos/pubg-logo.webp",
-      color: "#f3a011",
-    },
-    owner: { username: "SquadLeader", avatar: "/avatars/user5.jpg" },
-    mode: "Squad TPP",
-    region: "Asia",
-    currentSize: 3,
-    maxSize: 4,
-    minRank: "Diamond",
-    maxRank: "Conqueror",
-    isMicRequired: true,
-    type: "public" as const,
-    status: "waiting" as const,
-    note: "Chicken dinner time! Need 1 more",
-    createdAt: "2024-06-13T07:30:00Z",
-    tags: ["Squad", "TPP", "Experienced"],
-  },
-];
-
 export default function LobbiesPage() {
-  const router = useRouter();
-  // Filter states
+  const router = useRouter();// Filter states
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedGame, setSelectedGame] = useState("all");
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [selectedMode, setSelectedMode] = useState("all");
   const [sortBy, setSortBy] = useState("created");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("list");
-  // Multi-select states
+  const [viewMode, setViewMode] = useState<"grid" | "list">("list");  // Multi-select states
   const [selectedGames, setSelectedGames] = useState<string[]>([]);
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [selectedModes, setSelectedModes] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
-  const [selectedPlayingFor, setSelectedPlayingFor] = useState<string[]>([]);
   const [selectedMicRequired, setSelectedMicRequired] = useState<string[]>([]);
   // Rank range states
   const [minRank, setMinRank] = useState("bronze");
   const [maxRank, setMaxRank] = useState("platinum");
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
-
   const handleRankRangeChange = (newMinRank: string, newMaxRank: string) => {
     setMinRank(newMinRank);
     setMaxRank(newMaxRank);
+  };
+
+  // Custom handlers for single selection on games and platforms
+  const handleGamesChange = (newGames: string[]) => {
+    // Only allow single selection - take the last selected item
+    if (newGames.length > 0) {
+      setSelectedGames([newGames[newGames.length - 1]]);
+    } else {
+      setSelectedGames([]);
+    }
+  };
+
+  const handlePlatformsChange = (newPlatforms: string[]) => {
+    // Only allow single selection - take the last selected item
+    if (newPlatforms.length > 0) {
+      setSelectedPlatforms([newPlatforms[newPlatforms.length - 1]]);
+    } else {
+      setSelectedPlatforms([]);
+    }
   };
   // Calculate stats
   const stats = useMemo(
@@ -170,12 +76,12 @@ export default function LobbiesPage() {
         lobby.owner.username
           .toLowerCase()
           .includes(debouncedSearchTerm.toLowerCase()) ||
-        lobby.note?.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
-
-      // Single select filters (fallback)
-      const matchesGame =
-        selectedGame === "all" ||
-        lobby.game.name.toLowerCase().includes(selectedGame.toLowerCase());
+        lobby.note?.toLowerCase().includes(debouncedSearchTerm.toLowerCase());      // Multi-select filters with single selection limits for games and platforms
+      const matchesGames =
+        selectedGames.length === 0 ||
+        selectedGames.some((game) =>
+          lobby.game.name.toLowerCase().includes(game.toLowerCase())
+        );
 
       const matchesRegion =
         selectedRegion === "all" ||
@@ -188,13 +94,11 @@ export default function LobbiesPage() {
         selectedMode === "all" ||
         lobby.mode.toLowerCase().includes(selectedMode.toLowerCase());
 
-      // Multi-select filters (priority over single select)
-      const matchesGames =
-        selectedGames.length === 0 ||
-        selectedGames.some((game) =>
-          lobby.game.name.toLowerCase().includes(game.toLowerCase())
-        );
+      const matchesPlatforms =
+        selectedPlatforms.length === 0 ||
+        true; // Platform filtering logic can be added here when lobby data includes platform info
 
+      // Multi-select filters
       const matchesRegions =
         selectedRegions.length === 0 ||
         selectedRegions.some((region) =>
@@ -205,7 +109,7 @@ export default function LobbiesPage() {
         selectedModes.length === 0 ||
         selectedModes.some((mode) =>
           lobby.mode.toLowerCase().includes(mode.toLowerCase())
-        ); // Rank range filtering
+        );// Rank range filtering
       const matchesRankRange = (() => {
         // Get rank order values for comparison
         const rankOrder = {
@@ -235,11 +139,9 @@ export default function LobbiesPage() {
         return (
           lobbyMaxRankOrder >= minRankOrder && lobbyMinRankOrder <= maxRankOrder
         );
-      })();
-
-      // Use multi-select if available, otherwise fallback to single select
-      const finalGameMatch =
-        selectedGames.length > 0 ? matchesGames : matchesGame;
+      })();      // Use multi-select for games and platforms, and fallback to single select for regions and modes
+      const finalGameMatch = matchesGames; // Always use multi-select for games
+      const finalPlatformMatch = matchesPlatforms; // Always use multi-select for platforms
       const finalRegionMatch =
         selectedRegions.length > 0 ? matchesRegions : matchesRegion;
       const finalModeMatch =
@@ -248,6 +150,7 @@ export default function LobbiesPage() {
       return (
         matchesSearch &&
         finalGameMatch &&
+        finalPlatformMatch &&
         finalRegionMatch &&
         finalModeMatch &&
         matchesRankRange
@@ -288,18 +191,15 @@ export default function LobbiesPage() {
 
       return 0;
     });
-    return filtered;
-  }, [
+    return filtered;  }, [
     debouncedSearchTerm,
-    selectedGame,
+    selectedGames,
     selectedRegion,
     selectedMode,
-    selectedGames,
+    selectedPlatforms,
     selectedRegions,
     selectedModes,
     selectedLanguages,
-    selectedPlatforms,
-    selectedPlayingFor,
     selectedMicRequired,
     minRank,
     maxRank,
@@ -323,10 +223,8 @@ export default function LobbiesPage() {
   const handleDeleteLobby = (id: number) => {
     console.log("Deleting lobby:", id);
     // Delete lobby logic here
-  };
-  const handleClearFilters = () => {
+  };  const handleClearFilters = () => {
     setSearchTerm("");
-    setSelectedGame("all");
     setSelectedRegion("all");
     setSelectedMode("all");
     setSelectedGames([]);
@@ -334,23 +232,20 @@ export default function LobbiesPage() {
     setSelectedModes([]);
     setSelectedLanguages([]);
     setSelectedPlatforms([]);
-    setSelectedPlayingFor([]);
     setSelectedMicRequired([]);
     setMinRank("bronze");
     setMaxRank("platinum");
   };
   const handleSortOrderChange = () => {
     setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-  };
-  // Calculate active filters for display
+  };  // Calculate active filters for display
   const activeFilters = useMemo(
     () => [
       ...selectedGames.map((game) => `Game: ${game}`),
+      ...selectedPlatforms.map((platform) => `Platform: ${platform}`),
       ...selectedRegions.map((region) => `Region: ${region}`),
       ...selectedModes.map((mode) => `Mode: ${mode}`),
       ...selectedLanguages.map((lang) => `Language: ${lang}`),
-      ...selectedPlatforms.map((platform) => `Platform: ${platform}`),
-      ...selectedPlayingFor.map((playing) => `Playing: ${playing}`),
       ...selectedMicRequired.map((mic) => `Mic: ${mic}`),
       ...(minRank !== "bronze" || maxRank !== "platinum"
         ? [`Rank: ${minRank} - ${maxRank}`]
@@ -358,11 +253,10 @@ export default function LobbiesPage() {
     ],
     [
       selectedGames,
+      selectedPlatforms,
       selectedRegions,
       selectedModes,
       selectedLanguages,
-      selectedPlatforms,
-      selectedPlayingFor,
       selectedMicRequired,
       minRank,
       maxRank,
@@ -371,14 +265,13 @@ export default function LobbiesPage() {
   return (
     <div className="min-h-screen p-8">
       <div className="relative max-w-7xl mx-auto space-y-8">
-        {/* Filter Bar */}
-        <FilterBarSimple
+        {/* Filter Bar */}        <FilterBarSimple
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
-          selectedGame={selectedGame}
-          onGameChange={setSelectedGame}
+          selectedGame="all" // Not used but kept for compatibility
+          onGameChange={() => {}} // Not used but kept for compatibility
           selectedGames={selectedGames}
-          onGamesChange={setSelectedGames}
+          onGamesChange={handleGamesChange}
           selectedRegion={selectedRegion}
           onRegionChange={setSelectedRegion}
           selectedRegions={selectedRegions}
@@ -389,10 +282,10 @@ export default function LobbiesPage() {
           onModesChange={setSelectedModes}
           selectedLanguages={selectedLanguages}
           onLanguagesChange={setSelectedLanguages}
+          selectedPlatform="all" // Not used but kept for compatibility
+          onPlatformChange={() => {}} // Not used but kept for compatibility
           selectedPlatforms={selectedPlatforms}
-          onPlatformsChange={setSelectedPlatforms}
-          selectedPlayingFor={selectedPlayingFor}
-          onPlayingForChange={setSelectedPlayingFor}
+          onPlatformsChange={handlePlatformsChange}
           selectedMicRequired={selectedMicRequired}
           onMicRequiredChange={setSelectedMicRequired}
           minRank={minRank}
