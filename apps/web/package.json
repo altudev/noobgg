@@ -45,7 +45,7 @@
     "react-hook-form": "^7.57.0",
     "react-toastify": "^11.0.5",
     "tailwind-merge": "^3.3.0",
-    "three": "^0.177.0",
+    "three": "^0.178.0",
     "zod": "^3.25.49"
   },
   "devDependencies": {
